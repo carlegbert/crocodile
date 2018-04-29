@@ -1,19 +1,8 @@
 from flask import Flask, abort, make_response, redirect, request, url_for
-import hmac
-from hashlib import sha1
-from os import environ
+from util import check_signature
 
-
-secret = environ['CROCODILE_SECRET'].encode('utf-8')
 
 app = Flask(__name__)
-
-
-def check_signature(req):
-    data = req.data
-    signature = req.headers.get('X-Hub-Signature').split('=')[1]
-    digest = hmac.new(secret, data, sha1).hexdigest()
-    return hmac.compare_digest(signature, digest)
 
 
 @app.route('/', methods=['GET', 'POST'])
