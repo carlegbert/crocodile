@@ -1,5 +1,6 @@
 from flask import Flask, abort, make_response, redirect, request, url_for
-from util import check_signature
+
+from crocodile.auth import check_signature
 
 
 app = Flask(__name__)
@@ -8,7 +9,7 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('client'))
 
     if check_signature(request):
         return make_response('Accepted', 200)
