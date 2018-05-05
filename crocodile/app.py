@@ -16,10 +16,16 @@ def index():
 @app.route('/build', methods=['POST'])
 @auth.signature_required
 def build():
-    hook_name = request.headers['X-GitHub-Event']
-    hook = hooks.get(hook_name)
-    if not hook:
+    hook_type = request.headers['X-GitHub-Event']
+    action_hooks = hooks.get(hook_type)
+    if not action_hooks:
         abort(404)
 
-    Popen(hook, shell=True)
+    data = request.get_json()
+    ref = data['ref']
+    branch_hook = action_hooks.get(ref)
+    if not branch_hook:
+        abort(404)
+
+    Popen(branch_hook, shell=True)
     return make_response('success', 200)
