@@ -2,6 +2,7 @@ from hashlib import sha1
 import hmac
 from flask import abort, request
 from functools import wraps
+import ipaddress
 from os import environ
 import requests
 
@@ -11,7 +12,8 @@ Helpers for security and authentication.
 """
 
 secret = environ['CROCODILE_SECRET'].encode('utf-8')
-github_hook_ips = requests.get('https://api.github.com/meta').json()['hooks']
+_github_hook_ips = requests.get('https://api.github.com/meta').json()['hooks']
+_github_hook_networks = [ipaddress.ip_network(ip) for ip in _github_hook_ips]
 
 
 def _check_signature(req):
@@ -35,14 +37,19 @@ def signature_required(fn):
     return wrapper
 
 
-def _is_github_ip(req):
-    return req.remote_addr in github_hook_ips
+def _has_github_ip(req):
+    # Can't use req.remote_addr when using nginx proxy
+    ip = ipaddress.ip_address(req.environ['HTTP_X_REAL_IP'])
+    for nw in _github_hook_networks:
+        if ip in nw:
+            return True
+    return False
 
 
 def github_ip_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        if not _is_github_ip(request):
+        if not _has_github_ip(request):
             abort(401)
 
         return fn(*args, **kwargs)
