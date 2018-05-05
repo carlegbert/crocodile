@@ -9,5 +9,6 @@ pluggy==0.6.0
 py==1.5.3
 pytest==3.5.1
 pytest-flask==0.10.0
+PyYAML==3.12
 six==1.11.0
 Werkzeug==0.14.1

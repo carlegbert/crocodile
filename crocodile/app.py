@@ -1,22 +1,17 @@
-from flask import Flask, abort, make_response, redirect, request, url_for
+from flask import Flask, make_response, request
 
-from crocodile.auth import check_signature
+from crocodile import auth, hooks
 
 
 app = Flask(__name__)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def index():
-    if request.method == 'GET':
-        return redirect(url_for('client'))
-
-    if check_signature(request):
-        return make_response('Accepted', 200)
-
-    abort(404)
-
-
-@app.route('/dashboard', methods=['GET'])
-def dashboard():
     return 'Stub of the dashboard part of the application- TODO much later.'
+
+
+@app.route('/build', methods=['POST'])
+@auth.signature_required
+def build():
+    return 'wahee'
