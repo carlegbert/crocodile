@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# make virtualenv and install deps
 virtualenv -p /usr/bin/python3 venv
 source venv/bin/activate
 pip install -r requirements.txt
+
+# copy hooks.example.yml to hooks.yml if it doesn't exist already
+if [ ! -f hooks.yml ]; then
+  cp hooks.example.yml hooks.yml
+fi
