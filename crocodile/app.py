@@ -15,6 +15,7 @@ def index():
 
 @app.route('/build', methods=['POST'])
 @auth.signature_required
+@auth.github_ip_required
 def build():
     hook_type = request.headers['X-GitHub-Event']
     action_hooks = hooks.get(hook_type)
