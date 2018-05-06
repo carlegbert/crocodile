@@ -1,4 +1,11 @@
-from flask import Flask, abort, make_response, request
+from flask import (
+    Flask,
+    abort,
+    jsonify,
+    make_response,
+    render_template,
+    request
+)
 from subprocess import Popen
 
 from crocodile import auth
@@ -9,6 +16,7 @@ app = Flask(__name__)
 
 
 @app.route('/', methods=['GET'])
+@app.route('/index', methods=['GET'])
 def index():
     return 'Stub of the dashboard part of the application- TODO much later.'
 
@@ -30,3 +38,11 @@ def build():
 
     Popen(branch_hook, shell=True)
     return make_response('success', 200)
+
+
+@app.errorhandler(404)
+def not_found(e):
+    if request.method == 'GET':
+        return render_template('404.html'), 404
+
+    return make_response(jsonify({'message': 'Not found.'}), 404)
