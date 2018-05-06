@@ -55,3 +55,8 @@ def server_error(e):
 
     return make_response(jsonify({'message': 'An unexpected error occurred.'}),
                          404)
+
+
+@app.errorhandler(401)
+def authentication_failed(e):
+    return make_response(jsonify({'message': 'Authorization denied.'}), 401)

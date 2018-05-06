@@ -1,3 +1,4 @@
+from flask import url_for
 import json
 
 
@@ -13,3 +14,10 @@ def test_put_not_found(client):
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 404
     assert 'Not found.' in data['message']
+
+
+def test_put_no_digest(client):
+    response = client.post(url_for('build'))
+    assert response.status_code == 401
+    data = json.loads(response.data.decode('utf-8'))
+    assert 'Authorization denied' in data['message']
