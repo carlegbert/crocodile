@@ -46,3 +46,12 @@ def not_found(e):
         return render_template('404.html'), 404
 
     return make_response(jsonify({'message': 'Not found.'}), 404)
+
+
+@app.errorhandler(500)
+def server_error(e):
+    if request.method == 'GET':
+        return render_template('500.html'), 404
+
+    return make_response(jsonify({'message': 'An unexpected error occurred.'}),
+                         404)
