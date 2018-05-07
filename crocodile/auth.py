@@ -1,6 +1,6 @@
 from hashlib import sha1
 import hmac
-from flask import abort, request
+from flask import abort, current_app, request
 from functools import wraps
 import ipaddress
 import requests
@@ -24,17 +24,15 @@ def _check_signature(req, secret):
     return hmac.compare_digest(signature, digest)
 
 
-def signature_required(secret):
-    def decorator(fn):
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            if not _check_signature(request, secret):
-                abort(401)
+def signature_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        secret = current_app.config.get('CROCODILE_SECRET')
+        if not _check_signature(request, secret):
+            abort(401)
+        return fn(*args, **kwargs)
 
-            return fn(*args, **kwargs)
-
-        return wrapper
-    return decorator
+    return wrapper
 
 
 def _has_github_ip(req):
@@ -46,14 +44,12 @@ def _has_github_ip(req):
     return False
 
 
-def github_ip_required(allow_all_ips):
-    def decorator(fn):
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            if allow_all_ips or _has_github_ip(request):
-                return fn(*args, **kwargs)
+def github_ip_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        allow_all_ips = current_app.config.get('TEST_MODE')
+        if allow_all_ips or _has_github_ip(request):
+            return fn(*args, **kwargs)
 
-            abort(401)
-
-        return wrapper
-    return decorator
+        abort(401)
+    return wrapper

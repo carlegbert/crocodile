@@ -14,12 +14,14 @@ from crocodile import auth, hooks
 
 def create_app(settings_override=None):
     app = Flask(__name__)
-    secret = environ.get('CROCODILE_SECRET').encode('utf-8')
-    app.config['CROCODILE_SECRET'] = secret
-    app.config['TEST_MODE'] = False
-    app.config['HOOKS'] = hooks.load_hooks()
+
     if settings_override is not None:
         app.config.update(settings_override)
+    else:
+        secret = environ.get('CROCODILE_SECRET').encode('utf-8')
+        app.config['CROCODILE_SECRET'] = secret
+        app.config['TEST_MODE'] = False
+        app.config['HOOKS'] = hooks.load_hooks()
 
     @app.route('/', methods=['GET'])
     @app.route('/index', methods=['GET'])
@@ -27,8 +29,8 @@ def create_app(settings_override=None):
         return 'TODO: this'
 
     @app.route('/build', methods=['POST'])
-    @auth.signature_required(app.config['CROCODILE_SECRET'])
-    @auth.github_ip_required(app.config['TEST_MODE'])
+    @auth.signature_required
+    @auth.github_ip_required
     def build():
         hook_type = request.headers['X-GitHub-Event']
         action_hooks = app.config['HOOKS'].get(hook_type)
@@ -57,14 +59,15 @@ def create_app(settings_override=None):
         if request.method == 'GET':
             return render_template('500.html'), 404
 
-        return make_response(jsonify({'message': 'An unexpected error occurred.'}),
-                             404)
+        return make_response(jsonify({'message':
+                                      'An unexpected error occurred.'}), 404)
 
     @app.errorhandler(401)
     def authentication_failed(e):
-        return make_response(jsonify({'message': 'Authorization denied.'}), 401)
+        return make_response(jsonify({'message': 'Authorization denied.'}),
+                             401)
 
     return app
 
 
-app = create_app()
+    return app
