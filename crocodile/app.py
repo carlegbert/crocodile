@@ -30,7 +30,7 @@ def create_app(settings_override=None):
 
     @app.route('/build', methods=['POST'])
     @auth.signature_required
-    @auth.github_ip_required
+    @auth.valid_ip_required
     def build():
         hook_type = request.headers['X-GitHub-Event']
         action_hooks = app.config['HOOKS'].get(hook_type)

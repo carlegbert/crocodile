@@ -35,20 +35,24 @@ def signature_required(fn):
     return wrapper
 
 
-def _has_github_ip(req):
+def _has_valid_ip(req):
+
+    if current_app.config['TEST_MODE']:
+        return req.remote_addr == '127.0.0.1'
+
     # Can't use req.remote_addr when using nginx proxy
     ip = ipaddress.ip_address(req.environ['HTTP_X_REAL_IP'])
+
     for nw in _github_hook_networks:
         if ip in nw:
             return True
     return False
 
 
-def github_ip_required(fn):
+def valid_ip_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        allow_all_ips = current_app.config.get('TEST_MODE')
-        if allow_all_ips or _has_github_ip(request):
+        if _has_valid_ip(request):
             return fn(*args, **kwargs)
 
         abort(401)
