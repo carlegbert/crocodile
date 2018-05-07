@@ -1,11 +1,19 @@
 import pytest
 
-from crocodile.app import app as _app
+from crocodile.app import create_app
 
 
 @pytest.fixture
 def app():
-    yield _app
+    test_config = {
+        'CROCODILE_SECRET': 'test_secret'.encode('utf-8'),
+        'TEST_MODE': True,
+        'HOOKS': {
+            'test_event': {'test_branch': 'test_script'}
+        }
+    }
+    app = create_app(test_config)
+    return app
 
 
 @pytest.fixture
