@@ -45,7 +45,8 @@ def create_app(settings_override=None):
 
         if not app.config['TEST_MODE']:
             Popen(branch_hook, shell=True)
-        return make_response('success', 200)
+        return make_response(jsonify({'message': 'Hook consumed.'}),
+                             202)
 
     @app.errorhandler(404)
     def not_found(e):
@@ -67,7 +68,8 @@ def create_app(settings_override=None):
         return make_response(jsonify({'message': 'Authorization denied.'}),
                              401)
 
-    return app
-
+    @app.errorhandler(405)
+    def method_not_allowed(e):
+        return make_response(jsonify({'message': 'Method not allowed.'}), 405)
 
     return app

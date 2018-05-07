@@ -6,8 +6,8 @@ import json
 
 def test_put_no_signature(client):
     response = client.post(url_for('build'))
-    assert response.status_code == 401
     data = json.loads(response.data.decode('utf-8'))
+    assert response.status_code == 401
     assert 'Authorization denied' in data['message']
 
 
@@ -18,8 +18,8 @@ def test_put_bad_signature(client):
     headers = {'X-Hub-Signature': 'sha1=' + signature}
     response = client.post(url_for('build'), data=req_data, headers=headers,
                            content_type='application/json')
-    assert response.status_code == 401
     data = json.loads(response.data.decode('utf-8'))
+    assert response.status_code == 401
     assert 'Authorization denied' in data['message']
 
 
@@ -31,4 +31,6 @@ def test_put_good_signature(client):
                'X-Github-Event': 'test_event'}
     response = client.post(url_for('build'), data=req_data, headers=headers,
                            content_type='application/json')
-    assert response.status_code == 200
+    data = json.loads(response.data.decode('utf-8'))
+    assert response.status_code == 202
+    assert 'Hook consumed' in data['message']
