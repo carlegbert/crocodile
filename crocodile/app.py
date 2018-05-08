@@ -3,6 +3,7 @@ from flask import (
     abort,
     jsonify,
     make_response,
+    render_template,
     request
 )
 from os import environ
@@ -27,7 +28,7 @@ def create_app(settings_override=None):
     @app.route('/', methods=['GET'])
     @app.route('/index', methods=['GET'])
     def index():
-        return 'TODO: this'
+        return render_template('index.html')
 
     @app.route('/build', methods=['POST'])
     @auth.signature_required
