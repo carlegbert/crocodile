@@ -37,7 +37,7 @@ def signature_required(fn):
 
 def _has_valid_ip(req):
 
-    if current_app.config['TEST_MODE']:
+    if current_app.config['TESTING']:
         return req.remote_addr == '127.0.0.1'
 
     # Can't use req.remote_addr when using nginx proxy

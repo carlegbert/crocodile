@@ -7,7 +7,7 @@ from crocodile.app import create_app
 def app():
     test_config = {
         'CROCODILE_SECRET': 'test_secret'.encode('utf-8'),
-        'TEST_MODE': True,
+        'TESTING': True,
         'HOOKS': {
             'test_event': {'test_branch': 'test_script'}
         }

@@ -6,7 +6,6 @@ from flask import (
     render_template,
     request
 )
-from os import environ
 from subprocess import Popen
 
 from crocodile import auth, hooks, errorhandlers, logger
@@ -14,15 +13,13 @@ from crocodile import auth, hooks, errorhandlers, logger
 
 def create_app(settings_override=None):
     app = Flask(__name__)
+    logger.register_logger(app)
+
+    app.config.from_pyfile('application.cfg')
+    app.config['HOOKS'] = hooks.load_hooks()
 
     if settings_override is not None:
         app.config.update(settings_override)
-    else:
-        secret = environ.get('CROCODILE_SECRET', '').encode('utf-8')
-        app.config['CROCODILE_SECRET'] = secret
-        app.config['TEST_MODE'] = False
-        app.config['HOOKS'] = hooks.load_hooks()
-        logger.register_logger(app)
 
     errorhandlers.register(app)
 
@@ -48,7 +45,7 @@ def create_app(settings_override=None):
         if not branch_hook:
             abort(404)
 
-        if not app.config['TEST_MODE']:
+        if not app.config['TESTING']:
             app.logger.info('Build initiated for %s:%s:%s'
                             % (hook_type, ref, branch_hook))
             Popen(branch_hook, shell=True)
