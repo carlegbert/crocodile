@@ -9,7 +9,7 @@ from flask import (
 from os import environ
 from subprocess import Popen
 
-from crocodile import auth, hooks, errorhandlers
+from crocodile import auth, hooks, errorhandlers, logger
 
 
 def create_app(settings_override=None):
@@ -22,17 +22,20 @@ def create_app(settings_override=None):
         app.config['CROCODILE_SECRET'] = secret
         app.config['TEST_MODE'] = False
         app.config['HOOKS'] = hooks.load_hooks()
+        logger.register_logger(app)
 
     errorhandlers.register(app)
 
     @app.route('/', methods=['GET'])
     @app.route('/index', methods=['GET'])
+    @logger.log_request
     def index():
         return render_template('index.html')
 
     @app.route('/build', methods=['POST'])
     @auth.signature_required
     @auth.valid_ip_required
+    @logger.log_request
     def build():
         hook_type = request.headers['X-GitHub-Event']
         action_hooks = app.config['HOOKS'].get(hook_type)
@@ -46,6 +49,8 @@ def create_app(settings_override=None):
             abort(404)
 
         if not app.config['TEST_MODE']:
+            app.logger.info('Build initiated for %s:%s:%s'
+                            % (hook_type, ref, branch_hook))
             Popen(branch_hook, shell=True)
         return make_response(jsonify({'message': 'Hook consumed.'}),
                              202)
