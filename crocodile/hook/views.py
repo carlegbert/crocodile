@@ -9,7 +9,8 @@ from flask import (
 )
 
 from crocodile import auth
-from crocodile.logger import log_request
+from crocodile.logging import log_request
+from .util import get_hooks
 
 
 hook = Blueprint('hook', __name__)
@@ -21,7 +22,7 @@ hook = Blueprint('hook', __name__)
 @auth.valid_ip_required
 def build():
     hook_type = request.headers['X-GitHub-Event']
-    action_hooks = current_app.config['HOOKS'].get(hook_type)
+    action_hooks = get_hooks().get(hook_type)
     if not action_hooks:
         abort(404)
 

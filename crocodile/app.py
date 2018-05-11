@@ -1,28 +1,28 @@
-from os import path
 from flask import Flask, render_template
 
-from crocodile import errorhandlers, logger
+from crocodile import errorhandlers
+from crocodile.extensions import init_extensions
 from crocodile.hook import hook, load_hooks
-
-YAML_PATH = path.join(path.dirname(__file__), 'hooks.yml')
+from crocodile.logging import log_request
 
 
 def create_app(settings_override=None):
     app = Flask(__name__)
-    logger.register_logger(app)
+    init_extensions(app)
 
-    app.config.from_pyfile('application.cfg')
-    app.config['HOOKS'] = load_hooks(YAML_PATH)
+    app.config.from_pyfile('config.py')
 
     if settings_override is not None:
         app.config.update(settings_override)
+
+    load_hooks(app.config['HOOKSFILE'])
 
     errorhandlers.register(app)
     app.register_blueprint(hook)
 
     @app.route('/', methods=['GET'])
     @app.route('/index', methods=['GET'])
-    @logger.log_request
+    @log_request
     def index():
         return render_template('index.html')
 

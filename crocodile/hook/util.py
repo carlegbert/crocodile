@@ -1,8 +1,17 @@
+import json
 import yaml
 
+from crocodile.extensions import redis_store
 
-def load_hooks(yaml_path):
-    with open(yaml_path) as f:
+
+def load_hooks(hooksfile):
+    with open(hooksfile) as f:
         document = f.read()
-    hook_list = yaml.load(document, Loader=yaml.Loader)
-    return hook_list
+    hooks = yaml.load(document, Loader=yaml.Loader)
+    redis_store.delete('hooks')
+    redis_store.set('hooks', json.dumps(hooks))
+
+
+def get_hooks():
+    hook_data = redis_store.get('hooks')
+    return json.loads(hook_data.decode('utf-8'))

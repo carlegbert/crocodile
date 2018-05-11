@@ -1,3 +1,4 @@
+from os import path
 import pytest
 
 from crocodile.app import create_app
@@ -8,9 +9,7 @@ def app():
     test_config = {
         'CROCODILE_SECRET': 'test_secret'.encode('utf-8'),
         'TESTING': True,
-        'HOOKS': {
-            'test_event': {'test_branch': 'test_script'}
-        }
+        'HOOKSFILE': path.join(path.dirname(__file__), 'test_hooks.yml')
     }
     app = create_app(test_config)
     return app
