@@ -3,4 +3,5 @@
 source venv/bin/activate
 export FLASK_APP=crocodile/app
 export FLASK_DEBUG=1
-flask run
+flask run &
+celery -A crocodile.hook.task worker --loglevel=info

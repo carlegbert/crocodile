@@ -1,4 +1,3 @@
-from subprocess import Popen
 from flask import (
     Blueprint,
     abort,
@@ -10,6 +9,7 @@ from flask import (
 
 from crocodile import auth
 from crocodile.logging import log_request
+from .task import celery_build
 from .util import get_hooks
 
 
@@ -35,6 +35,6 @@ def build():
     if not current_app.config['TESTING']:
         current_app.logger.info('Build initiated for %s:%s:%s'
                                 % (hook_type, ref, branch_hook))
-        Popen(branch_hook, shell=True)
+        celery_build.delay(branch_hook)
 
     return make_response(jsonify({'message': 'Hook consumed.'}), 202)
