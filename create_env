@@ -5,7 +5,7 @@ virtualenv -p /usr/bin/python3 venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# copy hooks.example.yml to hooks.yml if it doesn't exist already
-if [ ! -f hooks.yml ]; then
-  cp hooks.example.yml hooks.yml
+# copy consumers.example.yml to consumers.yml if it doesn't exist already
+if [ ! -f consumers.yml ]; then
+  cp consumers.example.yml consumers.yml
 fi

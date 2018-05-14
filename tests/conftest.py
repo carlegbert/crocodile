@@ -9,7 +9,7 @@ def app():
     test_config = {
         'CROCODILE_SECRET': 'test_secret'.encode('utf-8'),
         'TESTING': True,
-        'HOOKSFILE': path.join(path.dirname(__file__), 'test_hooks.yml')
+        'CONSUMERSFILE': path.join(path.dirname(__file__), 'consumers.yml')
     }
     app = create_app(test_config)
     return app

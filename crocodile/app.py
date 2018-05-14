@@ -22,7 +22,7 @@ def create_app(settings_override=None):
     if settings_override is not None:
         app.config.update(settings_override)
 
-    consumers.load_consumers(app.config['HOOKSFILE'])
+    consumers.load_consumers(app.config['CONSUMERSFILE'])
 
     errorhandlers.register(app)
 
