@@ -4,13 +4,12 @@ from flask import (
     jsonify,
     make_response,
     render_template,
-    request
 )
 
-from crocodile import auth, consumers, errorhandlers
+from crocodile import auth, errorhandlers
+from crocodile.consumer import Consumer
 from crocodile.extensions import init_extensions
 from crocodile.logging import log_request
-from crocodile.task import celery_build
 
 
 def create_app(settings_override=None):
@@ -22,7 +21,7 @@ def create_app(settings_override=None):
     if settings_override is not None:
         app.config.update(settings_override)
 
-    consumers.load_consumers(app.config['CONSUMERSFILE'])
+    Consumer.load(app.config['CONSUMERSFILE'])
 
     errorhandlers.register(app)
 
@@ -37,18 +36,12 @@ def create_app(settings_override=None):
     @auth.signature_required
     @auth.valid_ip_required
     def build():
-        data = request.get_json()
-        ref = data['ref']
-        event_type = request.headers.get('X-GitHub-Event')
-
-        consumer = consumers.find_consumer(event_type, ref)
+        consumer = Consumer.find_from_request()
         if not consumer:
             abort(404)
 
         if not app.config['TESTING']:
-            app.logger.info('Build initiated for %s:%s:%s'
-                            % (event_type, ref, consumer))
-            celery_build.delay(consumer)
+            consumer.run()
 
         return make_response(jsonify({'message': 'Hook consumed.'}), 202)
 

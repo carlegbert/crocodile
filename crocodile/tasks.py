@@ -10,5 +10,5 @@ celery = Celery(
 
 
 @celery.task()
-def celery_build(hook_action):
-    subprocess.run(hook_action, shell=True)
+def build(consumer):
+    subprocess.run(consumer.action, shell=True)
