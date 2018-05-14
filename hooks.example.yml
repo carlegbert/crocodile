@@ -1,4 +1,0 @@
----
-push:
-  refs/heads/master: /script/path/goes/here.sh
-...

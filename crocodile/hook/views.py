@@ -10,7 +10,7 @@ from flask import (
 from crocodile import auth
 from crocodile.logging import log_request
 from .task import celery_build
-from .util import get_hooks
+from crocodile.consumers import find_consumer
 
 
 hook = Blueprint('hook', __name__)
@@ -21,20 +21,17 @@ hook = Blueprint('hook', __name__)
 @auth.signature_required
 @auth.valid_ip_required
 def build():
-    hook_type = request.headers['X-GitHub-Event']
-    action_hooks = get_hooks().get(hook_type)
-    if not action_hooks:
-        abort(404)
-
     data = request.get_json()
     ref = data['ref']
-    branch_hook = action_hooks.get(ref)
-    if not branch_hook:
+    event_type = request.headers.get('X-GitHub-Event')
+
+    consumer = find_consumer(event_type, ref)
+    if not consumer:
         abort(404)
 
     if not current_app.config['TESTING']:
         current_app.logger.info('Build initiated for %s:%s:%s'
-                                % (hook_type, ref, branch_hook))
-        celery_build.delay(branch_hook)
+                                % (event_type, ref, consumer))
+        celery_build.delay(consumer)
 
     return make_response(jsonify({'message': 'Hook consumed.'}), 202)

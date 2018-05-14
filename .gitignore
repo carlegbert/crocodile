@@ -4,3 +4,4 @@ __pycache__/
 hooks.yml
 config.py
 *.log
+*.log.*

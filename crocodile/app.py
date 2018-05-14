@@ -1,8 +1,9 @@
 from flask import Flask, render_template
 
 from crocodile import errorhandlers
+from crocodile.consumers import load_consumers
 from crocodile.extensions import init_extensions
-from crocodile.hook import hook, load_hooks
+from crocodile.hook import hook
 from crocodile.logging import log_request
 
 
@@ -15,7 +16,7 @@ def create_app(settings_override=None):
     if settings_override is not None:
         app.config.update(settings_override)
 
-    load_hooks(app.config['HOOKSFILE'])
+    load_consumers(app.config['HOOKSFILE'])
 
     errorhandlers.register(app)
     app.register_blueprint(hook)
