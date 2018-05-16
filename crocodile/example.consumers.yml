@@ -1,4 +1,6 @@
 ---
+# event type
 push:
+  # branch           # script that should run when webhook is triggered
   refs/heads/master: /script/path/goes/here.sh
 ...

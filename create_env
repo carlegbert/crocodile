@@ -5,7 +5,12 @@ virtualenv -p /usr/bin/python3 venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# copy consumers.example.yml to consumers.yml if it doesn't exist already
+# copy example.consumers.yml to consumers.yml if it doesn't exist already
 if [ ! -f consumers.yml ]; then
   cp consumers.example.yml consumers.yml
+fi
+
+# copy example.config.py to config.py if it doesn't exist already
+if [ ! -f config.py ]; then
+  cp example.config.py config.py
 fi
