@@ -1,6 +1,5 @@
 ---
-# event type
-push:
-  # branch           # script that should run when webhook is triggered
-  refs/heads/master: /script/path/goes/here.sh
+- event_type: push # or other event as per github webhook API
+  ref: refs/head/master # or other target
+  action: /path/to/build/script.sh
 ...

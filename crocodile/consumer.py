@@ -1,12 +1,13 @@
 from flask import current_app, request
-import json
 import yaml
 
-from crocodile.extensions import redis_store
 from crocodile.tasks import build
 
 
 class Consumer(object):
+
+    _consumer_list = []
+
     def __init__(self, event_type, ref, action):
         self.event_type = event_type
         self.ref = ref
@@ -21,26 +22,22 @@ class Consumer(object):
         build.delay(self)
 
     @classmethod
-    def load(cls, filename):
-        with open(filename) as f:
-            document = f.read()
-        consumers = yaml.load(document, Loader=yaml.Loader)
-        redis_store.delete('consumers')
-        redis_store.set('consumers', json.dumps(consumers))
+    def from_dict(cls, d):
+        pass
 
     @classmethod
-    def get_all(cls):
-        data = redis_store.get('consumers')
-        return json.loads(data.decode('utf-8'))
+    def initialize_consumers(cls, filename):
+        with open(filename) as f:
+            document = f.read()
+        consumers_raw = yaml.load(document, Loader=yaml.Loader)
+        cls._consumer_list = [Consumer(**c) for c in consumers_raw]
 
     @classmethod
     def find_from_request(cls):
         data = request.get_json()
         ref = data.get('ref')
         event_type = request.headers.get('X-GitHub-Event')
-        consumers = Consumer.get_all()
-        event_consumers = consumers.get(event_type)
-        action = event_consumers.get(ref)
-        if not action:
-            return None
-        return Consumer(event_type, ref, action)
+        for c in cls._consumer_list:
+            if c.event_type == event_type and c.ref == ref:
+                return c
+        return None

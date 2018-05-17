@@ -1,4 +1,5 @@
 ---
-test_event:
-  test_branch: test_script
+- event_type: test_event
+  ref: test_branch
+  action: test_script
 ...

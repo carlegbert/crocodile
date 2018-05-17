@@ -21,7 +21,7 @@ def create_app(settings_override=None):
     if settings_override is not None:
         app.config.update(settings_override)
 
-    Consumer.load(app.config['CONSUMERSFILE'])
+    Consumer.initialize_consumers(app.config['CONSUMERSFILE'])
 
     errorhandlers.register(app)
 
