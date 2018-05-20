@@ -7,7 +7,7 @@ from crocodile.app import create_app
 @pytest.fixture
 def app():
     test_config = {
-        'CROCODILE_SECRET': 'test_secret'.encode('utf-8'),
+        'CROCODILE_SECRET': 'test_secret',
         'TESTING': True,
         'CONSUMERSFILE': path.join(path.dirname(__file__), 'consumers.yml')
     }
