@@ -27,7 +27,7 @@ def _check_signature(req, secret):
 def signature_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        secret = current_app.config.get('CROCODILE_SECRET')
+        secret = current_app.config.get('CROCODILE_SECRET').encode('utf-8')
         if not _check_signature(request, secret):
             abort(401)
         return fn(*args, **kwargs)
