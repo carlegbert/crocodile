@@ -19,7 +19,14 @@ class Consumer(object):
 
         current_app.logger.info('Build initiated for %s:%s:%s'
                                 % (self.event_type, self.ref, self.action))
-        build.delay(self)
+        build.delay(self.to_dict())
+
+    def to_dict(self):
+        return {
+            'event_type': self.event_type,
+            'ref': self.ref,
+            'action': self.action
+        }
 
     @classmethod
     def from_dict(cls, d):
