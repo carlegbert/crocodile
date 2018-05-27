@@ -1,11 +1,13 @@
 import smtplib
 import subprocess
+from getpass import getuser
 from socket import gethostname
 from celery import Celery
 from crocodile import config
 
 _HOSTNAME = gethostname()
-_FROM = 'crocodile %s' % _HOSTNAME
+_USER = getuser()
+_FROM = '%s@%s' % (_USER, _HOSTNAME)
 
 
 celery = Celery(
@@ -20,7 +22,7 @@ def build(consumer):
 
 
 @celery.task()
-def send_notification_email(recipients, subject, message):
+def send_notification_email(mail):
     smtp = smtplib.SMTP('localhost')
-    smtp.sendmail(_FROM, recipients, message)
+    smtp.sendmail(_FROM, ','.join(mail.get('recipients')), mail.get('message'))
     smtp.close()

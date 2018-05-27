@@ -25,7 +25,6 @@ class Consumer(object):
                                    self.action))
         self._notify_build_started()
         build.delay(self.to_dict())
-        build.delay(self)
 
     def to_dict(self):
         return {
@@ -37,10 +36,10 @@ class Consumer(object):
     def _notify_build_started(self):
         time = datetime.now()
         subject = 'Build started for %s' % self.name
-        message = 'Build was triggered at %s for application %s due to %s'
-        'event for branch %s' % (time, self.name, self.event_type,
-                                 self.ref)
-        send_notification_email(self.watchers, subject, message)
+        msg = 'Build started at {} for application {} due to {} on {}.'\
+            .format(time, self.name, self.event_type, self.ref)
+        send_notification_email({'recipients': self.watchers,
+                                 'subject': subject, 'message': msg})
 
     @classmethod
     def from_dict(cls, d):
