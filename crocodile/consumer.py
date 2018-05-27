@@ -1,8 +1,7 @@
-from datetime import datetime
 from flask import current_app, request
 import yaml
 
-from crocodile.tasks import build, send_notification_email
+from crocodile.tasks import build
 
 
 class Consumer(object):
@@ -23,23 +22,16 @@ class Consumer(object):
         current_app.logger.info('Build initiated for %s:%s:%s:%s'
                                 % (self.name, self.event_type, self.ref,
                                    self.action))
-        self._notify_build_started()
         build.delay(self.to_dict())
 
     def to_dict(self):
         return {
+            'name': self.name,
             'event_type': self.event_type,
             'ref': self.ref,
-            'action': self.action
+            'action': self.action,
+            'watchers': self.watchers
         }
-
-    def _notify_build_started(self):
-        time = datetime.now()
-        subject = 'Build started for %s' % self.name
-        msg = 'Build started at {} for application {} due to {} on {}.'\
-            .format(time, self.name, self.event_type, self.ref)
-        send_notification_email({'recipients': self.watchers,
-                                 'subject': subject, 'message': msg})
 
     @classmethod
     def from_dict(cls, d):
