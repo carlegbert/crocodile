@@ -1,5 +1,8 @@
 ---
-- event_type: test_event
+- name: test_consumer
+  event_type: test_event
   ref: test_branch
   action: test_script
+  watchers:
+    test@address
 ...
