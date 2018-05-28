@@ -3,7 +3,6 @@ from flask import (
     abort,
     jsonify,
     make_response,
-    render_template,
 )
 
 from crocodile import auth, errorhandlers
@@ -25,12 +24,7 @@ def create_app(settings_override=None):
 
     errorhandlers.register(app)
 
-    @app.route('/', methods=['GET'])
-    @app.route('/index', methods=['GET'])
-    @log_request
-    def index():
-        return render_template('index.html')
-
+    @app.route('/', methods=['POST'])
     @app.route('/build', methods=['POST'])
     @log_request
     @auth.signature_required

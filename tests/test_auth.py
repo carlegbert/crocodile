@@ -4,14 +4,14 @@ import hmac
 import json
 
 
-def test_put_no_signature(client):
+def test_post_no_signature(client):
     response = client.post(url_for('build'))
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 401
     assert 'Authorization denied' in data['message']
 
 
-def test_put_bad_signature(client):
+def test_post_bad_signature(client):
     req_data = json.dumps({'dict': 'with some stuff'})
     secret = 'bad_secret'.encode('utf-8')
     signature = hmac.new(secret, req_data.encode('utf-8'), sha1).hexdigest()
@@ -23,7 +23,7 @@ def test_put_bad_signature(client):
     assert 'Authorization denied' in data['message']
 
 
-def test_put_good_signature(client):
+def test_post_good_signature(client):
     req_data = json.dumps({'ref': 'test_branch'})
     secret = 'test_secret'.encode('utf-8')
     signature = hmac.new(secret, req_data.encode('utf-8'), sha1).hexdigest()
