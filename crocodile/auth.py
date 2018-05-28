@@ -47,9 +47,11 @@ def _get_valid_networks():
 
 
 def _ip_from_request():
+    #  remote_addr is not present on request when using nginx proxy, and
+    #  uwsgi turns HTTP_X_REAL_IP into `<ip>, <ip>`
     if current_app.config['TESTING']:
         return request.remote_addr
-    return request.environ['HTTP_X_REAL_IP']
+    return request.environ['HTTP_X_REAL_IP'].split(',')[0]
 
 
 def _has_valid_ip():
