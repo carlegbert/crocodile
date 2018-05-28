@@ -16,9 +16,6 @@ class Consumer(object):
         self.watchers = watchers
 
     def run(self):
-        if current_app.config['TESTING']:
-            return
-
         current_app.logger.info('Build initiated for %s:%s:%s:%s'
                                 % (self.name, self.event_type, self.ref,
                                    self.action))

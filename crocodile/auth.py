@@ -34,25 +34,29 @@ def signature_required(fn):
     return wrapper
 
 
-def _fetch_github_networks():
-    github_networks = redis_store.lrange('ghnetworks', 0, -1)
-    if not github_networks:
-        gh_ips = requests.get('https://api.github.com/meta').json()['hooks']
-        github_networks = [ipaddress.ip_network(ip) for ip in gh_ips]
-        redis_store.lpush('ghnetworks', github_networks)
-    return github_networks
-
-
-def _has_valid_ip(req):
+def _get_valid_networks():
     if current_app.config['TESTING']:
-        return req.remote_addr == '127.0.0.1'
+        return [ipaddress.ip_network('127.0.0.1')]
 
-    github_networks = _fetch_github_networks()
+    valid_networks = redis_store.lrange('valid_networks', 0, -1)
+    if not valid_networks:
+        ips = requests.get('https://api.github.com/meta').json()['hooks']
+        valid_networks = [ipaddress.ip_network(ip) for ip in ips]
+        redis_store.lpush('valid_networks', valid_networks)
+    return valid_networks
 
-    # Can't use req.remote_addr when using nginx proxy
-    ip = ipaddress.ip_address(req.environ['HTTP_X_REAL_IP'])
 
-    for nw in github_networks:
+def _ip_from_request():
+    if current_app.config['TESTING']:
+        return request.remote_addr
+    return request.environ['HTTP_X_REAL_IP']
+
+
+def _has_valid_ip():
+    valid_networks = _get_valid_networks()
+    ip = ipaddress.ip_address(_ip_from_request())
+
+    for nw in valid_networks:
         if ip in nw:
             return True
     return False
@@ -61,7 +65,7 @@ def _has_valid_ip(req):
 def valid_ip_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        if _has_valid_ip(request):
+        if _has_valid_ip():
             return fn(*args, **kwargs)
 
         abort(401)
