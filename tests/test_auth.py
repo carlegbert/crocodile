@@ -1,6 +1,6 @@
-from flask import url_for
 from hashlib import sha1
 import hmac
+from flask import url_for
 import json
 
 
@@ -23,13 +23,8 @@ def test_post_bad_signature(client):
     assert 'Authorization denied' in data['message']
 
 
-def test_post_good_signature(client):
-    req_data = json.dumps({'ref': 'test_branch'})
-    secret = 'test_secret'.encode('utf-8')
-    signature = hmac.new(secret, req_data.encode('utf-8'), sha1).hexdigest()
-    headers = {'X-Hub-Signature': 'sha1=' + signature,
-               'X-Github-Event': 'test_event'}
-    response = client.post(url_for('build'), data=req_data,
+def test_post_good_signature(client, secret, request_json, headers):
+    response = client.post(url_for('build'), data=request_json,
                            headers=headers, content_type='application/json')
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 202

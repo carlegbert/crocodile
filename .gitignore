@@ -5,3 +5,4 @@ consumers.yml
 config.py
 *.log
 *.log.*
+.coverage
