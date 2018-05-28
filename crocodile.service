@@ -1,0 +1,15 @@
+# To be copied to /etc/systemd/system/crocodile.service
+
+[Unit]
+Description=uWSGI instance for serving crocodile.carlegbert.com
+After=network.target
+
+[Service]
+User=replace_this
+Group=replace-this
+WorkingDirectory=/replace/this
+Environment="PATH=/replace/this"
+ExecStart=/replace/this/venv/bin/uwsgi --ini crocodile.ini
+
+[Install]
+WantedBy=multi-user.target
