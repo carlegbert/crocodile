@@ -29,3 +29,13 @@ def test_post_good_signature(client, secret, request_json, headers):
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 202
     assert 'Hook consumed' in data['message']
+
+
+def test_invalid_ip_rejected(client, request_json, headers):
+    client.environ_base['REMOTE_ADDR'] = '123.4.5.6'
+    response = client.post(url_for('build'), data=request_json,
+                           headers=headers, content_type='application/json')
+    client.environ_base['REMOTE_ADDR'] = '127.0.0.1'
+    data = json.loads(response.data.decode('utf-8'))
+    assert response.status_code == 401
+    assert 'Authorization denied' in data['message']

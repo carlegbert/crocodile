@@ -1,4 +1,4 @@
-from flask import current_app, jsonify, make_response, render_template, request
+from flask import current_app, jsonify, make_response
 
 
 def register(app):
@@ -6,16 +6,11 @@ def register(app):
     def not_found(e):
         current_app.logger.warn('Not found')
 
-        if request.method == 'GET':
-            return render_template('404.html'), 404
         return make_response(jsonify({'message': 'Not found.'}), 404)
 
     @app.errorhandler(500)
     def server_error(e):
         current_app.logger.error(str(e))
-
-        if request.method == 'GET':
-            return render_template('500.html'), 404
         return make_response(jsonify({'message':
                                       'An unexpected error occurred.'}), 404)
 

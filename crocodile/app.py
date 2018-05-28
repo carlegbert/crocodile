@@ -34,8 +34,7 @@ def create_app(settings_override=None):
         if not consumer:
             abort(404)
 
-        if not app.config['TESTING']:
-            consumer.run()
+        consumer.run()
 
         return make_response(jsonify({'message': 'Hook consumed.'}), 202)
 
