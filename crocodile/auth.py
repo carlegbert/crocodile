@@ -5,7 +5,8 @@ from functools import wraps
 import ipaddress
 import requests
 
-from crocodile.extensions import redis_store
+
+_valid_networks = None
 
 
 """
@@ -35,15 +36,15 @@ def signature_required(fn):
 
 
 def _get_valid_networks():
+    global _valid_networks
+
     if current_app.config['TESTING']:
         return [ipaddress.ip_network('127.0.0.1')]
 
-    valid_networks = redis_store.lrange('valid_networks', 0, -1)
-    if not valid_networks:
+    if not _valid_networks:
         ips = requests.get('https://api.github.com/meta').json()['hooks']
-        valid_networks = [ipaddress.ip_network(ip) for ip in ips]
-        redis_store.lpush('valid_networks', valid_networks)
-    return valid_networks
+        _valid_networks = [ipaddress.ip_network(ip) for ip in ips]
+    return _valid_networks
 
 
 def _ip_from_request():
