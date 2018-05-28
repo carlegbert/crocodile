@@ -5,13 +5,12 @@ from functools import wraps
 import ipaddress
 import requests
 
+from crocodile.extensions import redis_store
+
 
 """
 Helpers for security and authentication.
 """
-
-_github_hook_ips = requests.get('https://api.github.com/meta').json()['hooks']
-_github_hook_networks = [ipaddress.ip_network(ip) for ip in _github_hook_ips]
 
 
 def _check_signature(req, secret):
@@ -35,15 +34,25 @@ def signature_required(fn):
     return wrapper
 
 
-def _has_valid_ip(req):
+def _fetch_github_networks():
+    github_networks = redis_store.lrange('ghnetworks', 0, -1)
+    if not github_networks:
+        gh_ips = requests.get('https://api.github.com/meta').json()['hooks']
+        github_networks = [ipaddress.ip_network(ip) for ip in gh_ips]
+        redis_store.lpush('ghnetworks', github_networks)
+    return github_networks
 
+
+def _has_valid_ip(req):
     if current_app.config['TESTING']:
         return req.remote_addr == '127.0.0.1'
+
+    github_networks = _fetch_github_networks()
 
     # Can't use req.remote_addr when using nginx proxy
     ip = ipaddress.ip_address(req.environ['HTTP_X_REAL_IP'])
 
-    for nw in _github_hook_networks:
+    for nw in github_networks:
         if ip in nw:
             return True
     return False
