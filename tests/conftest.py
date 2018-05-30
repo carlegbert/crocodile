@@ -32,7 +32,10 @@ def secret():
 
 @pytest.fixture
 def request_json():
-    return json.dumps({'ref': 'test_branch'})
+    return json.dumps({
+        'ref': 'test_branch',
+        'repository': {'full_name': 'test_consumer'}
+    })
 
 
 @pytest.fixture

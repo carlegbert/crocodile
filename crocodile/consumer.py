@@ -6,10 +6,10 @@ from crocodile.tasks import build
 
 class Consumer(object):
 
-    _consumer_list = []
+    _consumers = {}
 
-    def __init__(self, name, event_type, ref, action, watchers):
-        self.name = name
+    def __init__(self, repository, event_type, ref, action, watchers):
+        self.repository = repository
         self.event_type = event_type
         self.ref = ref
         self.action = action
@@ -17,13 +17,13 @@ class Consumer(object):
 
     def run(self):
         current_app.logger.info('Build initiated for %s:%s:%s:%s'
-                                % (self.name, self.event_type, self.ref,
+                                % (self.repository, self.event_type, self.ref,
                                    self.action))
         build.delay(self.to_dict())
 
     def to_dict(self):
         return {
-            'name': self.name,
+            'repository': self.repository,
             'event_type': self.event_type,
             'ref': self.ref,
             'action': self.action,
@@ -31,22 +31,24 @@ class Consumer(object):
         }
 
     @classmethod
-    def from_dict(cls, d):
-        pass
-
-    @classmethod
     def initialize_consumers(cls, filename):
         with open(filename) as f:
             document = f.read()
         consumers_raw = yaml.load(document, Loader=yaml.Loader)
-        cls._consumer_list = [Consumer(**c) for c in consumers_raw]
+        for repo in consumers_raw:
+            cls._consumers[repo] = [Consumer(repository=repo, **c)
+                                    for c in consumers_raw[repo]]
 
     @classmethod
     def find_from_request(cls):
         data = request.get_json()
         ref = data.get('ref')
         event_type = request.headers.get('X-GitHub-Event')
-        for c in cls._consumer_list:
+        repository = data.get('repository').get('full_name')
+        repo_consumers = cls._consumers.get(repository)
+        if not repo_consumers:
+            return None
+        for c in repo_consumers:
             if c.event_type == event_type and c.ref == ref:
                 return c
         return None
