@@ -8,6 +8,7 @@ click==6.7
 coverage==4.5.1
 Flask==1.0
 Flask-Redis==0.3.0
+gunicorn==19.8.1
 idna==2.6
 itsdangerous==0.24
 Jinja2==2.10
@@ -25,6 +26,5 @@ redis==2.10.6
 requests==2.18.4
 six==1.11.0
 urllib3==1.22
-uWSGI==2.0.17
 vine==1.1.4
 Werkzeug==0.14.1

@@ -21,21 +21,21 @@ celery = Celery(
 @celery.task()
 def build(consumer):
     start_time = datetime.now()
-    name = consumer.get('name')
+    repository = consumer.get('repository')
     watchers = consumer.get('watchers')
     event_type = consumer.get('event_type')
     ref = consumer.get('ref')
     action = consumer.get('action')
 
     started_msg = 'Build started at {} for application {} due to {} on {}.'\
-        .format(start_time, name, event_type, ref)
+        .format(start_time, repository, event_type, ref)
     send_notification_email.delay({'recipients': watchers,
                                    'message': started_msg})
     try:
-        subprocess.run(action, shell=True, check=True)
-        finished_msg = 'Build finished for %s' % name
+        subprocess.run(action, check=True, shell=True, executable='/bin/bash')
+        finished_msg = 'Build finished for %s' % repository
     except subprocess.CalledProcessError as e:
-        finished_msg = 'Build failed for %s:\n%s' % (name, str(e))
+        finished_msg = 'Build failed for %s:\n%s' % (repository, str(e))
     end_time = datetime.now()
     mail = {'recipients': watchers,
             'message': '%s: %s' % (end_time, finished_msg)}
