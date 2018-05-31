@@ -6,11 +6,11 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # copy example.consumers.yml to consumers.yml if it doesn't exist already
-if [ ! -f consumers.yml ]; then
-  cp consumers.example.yml consumers.yml
+if [ ! -f crocodile/consumers.yml ]; then
+  cp crocodile/example.consumers.yml crocodile/consumers.yml
 fi
 
 # copy example.config.py to config.py if it doesn't exist already
-if [ ! -f config.py ]; then
-  cp example.config.py config.py
+if [ ! -f crocodile/config.py ]; then
+  cp crocodile/example.config.py crocodile/config.py
 fi
