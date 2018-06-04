@@ -19,13 +19,8 @@ celery = Celery(
 
 
 @celery.task()
-def build(consumer):
+def build(*, repository, watchers, event_type, ref, action):
     start_time = datetime.now()
-    repository = consumer.get('repository')
-    watchers = consumer.get('watchers')
-    event_type = consumer.get('event_type')
-    ref = consumer.get('ref')
-    action = consumer.get('action')
 
     started_msg = 'Build started at {} for application {} due to {} on {}.'\
         .format(start_time, repository, event_type, ref)
