@@ -38,4 +38,10 @@ def create_app(settings_override=None):
 
         return make_response(jsonify({'message': 'Hook consumed.'}), 202)
 
+    @app.route('/health', methods=['GET'])
+    @log_request
+    def healthcheck():
+        return make_response(jsonify({'message': 'Application is running.'}),
+                             200)
+
     return app
