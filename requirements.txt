@@ -21,7 +21,7 @@ pytest==3.5.1
 pytest-cov==2.5.1
 pytest-flask==0.10.0
 pytz==2018.4
-PyYAML==3.12
+PyYAML==5.4
 redis==2.10.6
 requests==2.18.4
 six==1.11.0
